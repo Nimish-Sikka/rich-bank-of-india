@@ -1,25 +1,51 @@
-# RICH BANK OF INDIA (RBI) - Banking System
+# RICH BANK OF INDIA
 
-Welcome to the **RICH BANK OF INDIA** (RBI) banking system project. This project is a simple banking application built using Streamlit, SQLite, and Python. It allows users to create accounts, sign in, and perform various banking operations through a web interface.
+Welcome to the RICH BANK OF INDIA project! This is a banking system application built using Streamlit and SQLite, designed to handle basic banking operations like account creation, balance viewing, transactions, and more.
 
 ## Features
 
-- **Sign Up / Sign In**: Create a new account or sign in to an existing account.
-- **View Balance**: Check the current balance of your account.
-- **View Account Details**: View detailed information about your account.
+- **Sign Up**: Create a new bank account by providing necessary details.
+- **Sign In**: Access your account using your username and password.
+- **View Balance**: Check the current balance in your account.
+- **View Account Details**: View personal details and account information.
 - **Update Account Details**: Update your address and mobile number.
 - **Withdraw Money**: Withdraw funds from your account.
 - **Deposit Money**: Deposit funds into your account.
-- **Calculate Interest**: Calculate and add interest to your savings account.
-- **Transaction Report**: Generate a report of transactions within a specified date range.
-- **Send Money**: Transfer funds to another user's account.
+- **Calculate Interest**: Add monthly interest to your account based on the account type.
+- **Transaction Report**: Generate a report of all transactions within a specified date range.
+- **Send Money**: Transfer money to another user within the system.
 
-## Installation
+## Getting Started
 
-To run this project, you need Python and Streamlit installed. Follow the steps below to set up the project:
+### Prerequisites
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Nimish-Sikka/rich-bank-of-india.git
-   cd rich-bank-of-india
+- Python 3.x
+- Streamlit
+- SQLite
+- PIL (Python Imaging Library)
 
+You can access it via this link [RICH BANK OF INDIA (RBI)](https://rich-bank-of-india.streamlit.app/).
+
+### Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/rich-bank-of-india.git
+    ```
+
+2. Navigate into the project directory:
+    ```bash
+    cd rich-bank-of-india
+    ```
+
+3. Install required packages:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Run the application:
+    ```bash
+    streamlit run banking_app.py
+    ```
+
+The app will start and open in your default web browser.
