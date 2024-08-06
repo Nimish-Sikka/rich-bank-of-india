@@ -30,7 +30,7 @@ You can access it via this link [RICH BANK OF INDIA (RBI)](https://rich-bank-of-
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/rich-bank-of-india.git
+    git clone https://github.com/Nimish-Sikka/rich-bank-of-india.git
     ```
 
 2. Navigate into the project directory:
