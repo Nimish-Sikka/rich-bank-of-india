@@ -92,15 +92,19 @@ def create_account():
     balance = st.number_input("Enter Initial Deposit", min_value=0.0, step=0.01)
 
     if st.button("Create Account"):
-        dob = dob.strftime('%Y-%m-%d')
-        mycur.execute('''
-            INSERT INTO bank (UserName, Name, Password, DOB, Address, Mobile_Number, Aadhar_no, Balance, AccountType)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (username, name, password, dob, address, mobile, aadhar, balance, account_type))
+        if not (name and username and password and dob and address and mobile and aadhar and account_type and balance):
+            st.error("Please fill out all fields.")
+        else:
+            dob = dob.strftime('%Y-%m-%d')
+            mycur.execute('''
+                INSERT INTO bank (UserName, Name, Password, DOB, Address, Mobile_Number, Aadhar_no, Balance, AccountType)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (username, name, password, dob, address, mobile, aadhar, balance, account_type))
 
-        mycon.commit()
-        mycon.close()
-        st.success("Account Created Successfully!")
+            mycon.commit()
+            mycon.close()
+            st.success("Account Created Successfully!")
+
 
 # Sign In (Existing Users)
 def sign_in():
@@ -112,16 +116,20 @@ def sign_in():
     password = st.text_input("Enter Your Password", type="password")
 
     if st.button("Sign In"):
-        mycur.execute("SELECT * FROM bank WHERE UserName = ? AND Password = ?", (username, password))
-        user = mycur.fetchone()
-
-        if user:
-            st.session_state['username'] = username
-            st.success(f"Welcome back, {user[1]}!")
+        if not (username and password):
+            st.error("Please enter both username and password.")
         else:
-            st.error("Invalid credentials. Please try again.")
+            mycur.execute("SELECT * FROM bank WHERE UserName = ? AND Password = ?", (username, password))
+            user = mycur.fetchone()
+
+            if user:
+                st.session_state['username'] = username
+                st.success(f"Welcome back, {user[1]}!")
+            else:
+                st.error("Invalid credentials. Please try again.")
 
     mycon.close()
+
 
 # View Balance Status
 def view_balance(username):
@@ -202,6 +210,7 @@ def withdraw_money(username):
 
     mycon.close()
 
+
 # Deposit Money
 def deposit_money(username):
     mycon = sqlite3.connect('banking_system.db')
@@ -222,6 +231,7 @@ def deposit_money(username):
         st.success(f"Deposit successful. New balance is: {new_balance} ₹")
 
     mycon.close()
+
 
 # Calculate Interest
 def calculate_interest(username):
@@ -246,36 +256,27 @@ def calculate_interest(username):
 
     mycon.close()
 
+
 # Transaction Report
 def transaction_report(username):
     mycon = sqlite3.connect('banking_system.db')
     mycur = mycon.cursor()
 
-    st.header("Transaction Report")
-    start_date = st.date_input("Enter start date")
-    end_date = st.date_input("Enter end date")
+    st.header("Transaction History")
+    mycur.execute("SELECT Date, Type, Amount, Balance_After FROM transactions WHERE UserName = ? ORDER BY Date DESC", (username,))
+    transactions = mycur.fetchall()
 
-    if st.button("Generate Report"):
-        start_date = start_date.strftime('%Y-%m-%d')
-        end_date = end_date.strftime('%Y-%m-%d')
-
-        mycur.execute('''
-            SELECT Date, Type, Amount, Balance_After 
-            FROM transactions 
-            WHERE UserName = ? AND Date BETWEEN ? AND ?
-            ORDER BY Date DESC
-        ''', (username, start_date, end_date))
-
-        transactions = mycur.fetchall()
-
-        if transactions:
-            st.write("<h2 style='text-align: center; color: #C05621;'>--- Transaction Report ---</h2>", unsafe_allow_html=True)
-            for transaction in transactions:
-                st.write(f"<h3 style='text-align: center;'>Date: {transaction[0]}, Type: {transaction[1]}, Amount: {transaction[2]} ₹, Balance After: {transaction[3]} ₹</h3>", unsafe_allow_html=True)
-        else:
-            st.write("<h3 style='text-align: center;'>No transactions found in the given date range.</h3>", unsafe_allow_html=True)
+    if transactions:
+        st.write("<h2 style='text-align: center; color: #C05621;'>--- Transaction History ---</h2>", unsafe_allow_html=True)
+        for transaction in transactions:
+            st.write(f"<h3 style='text-align: center;'>Date: {transaction[0]}, Type: {transaction[1]}, Amount: {transaction[2]} ₹, Balance After: {transaction[3]} ₹</h3>", unsafe_allow_html=True)
+    else:
+        st.write("<h3 style='text-align: center;'>No transactions found.</h3>", unsafe_allow_html=True)
 
     mycon.close()
+
+
+
 
 # Send Money
 def send_money(username):
@@ -287,7 +288,6 @@ def send_money(username):
     amount = st.number_input("Enter the amount to send", min_value=0.0, step=0.01)
 
     if st.button("Send Money"):
-        # Check if recipient exists
         mycur.execute("SELECT UserName FROM bank WHERE UserName = ?", (recipient_username,))
         recipient = mycur.fetchone()
 
@@ -300,13 +300,11 @@ def send_money(username):
             if amount > sender_balance:
                 st.error("Insufficient balance.")
             else:
-                # Update sender's balance
                 new_sender_balance = sender_balance - amount
                 mycur.execute("UPDATE bank SET Balance = ? WHERE UserName = ?", (new_sender_balance, username))
                 mycur.execute("INSERT INTO transactions (UserName, Date, Type, Amount, Balance_After) VALUES (?, ?, ?, ?, ?)", 
                               (username, dt.datetime.now(), 'Transfer Out', amount, new_sender_balance))
                 
-                # Update recipient's balance
                 mycur.execute("SELECT Balance FROM bank WHERE UserName = ?", (recipient_username,))
                 recipient_balance = mycur.fetchone()[0]
                 new_recipient_balance = recipient_balance + amount
